@@ -1,33 +1,20 @@
 # vue-reactive-push-reproduce
 
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+For reproducing go through the following steps:
 ```
-
-### Compile and Hot-Reload for Development
-
-```sh
+npm i
 npm run dev
 ```
+- Look at "example with ref()".
+- Click (1) button
+- See that item was added (that's correct)
+- Click (2) button
+- See that item was added and there is no warnings (that's incorrect, because the array is readonly)
+- Click (3) button
+- See that item was not added and there is a warning in console "Set operation on key "items" failed: target is readonly" (that's correct)
 
-### Type-Check, Compile and Minify for Production
+So, the problem is that an object wrapped in `readonly()` stays mutable by `Array.prototype.push()` call on its property.
+This is only the case when we create object like this `readonly({ myArray: ref([]) })`. There is no problem if we create object
+like this `readonly(reactive({ myArray: [] }))`, as you can see in "example with reactive()".
 
-```sh
-npm run build
-```
+My expectation is that the array always stays immutable when wrapped in `readonly()`.
